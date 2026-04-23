@@ -219,7 +219,7 @@ The web UI follows the same stack and styling approach as **Sython** (`~/src/syt
 
 ### Prerequisites
 
-- **PostgreSQL** (default `DB_*` in `.env.example`) **or** set **`DJANGO_USE_SQLITE=true`** for a local **`db.sqlite3`** file.
+- **SQLite by default** (`db.sqlite3`; **`make migrate`** works with no database server). Set **`DJANGO_USE_SQLITE=false`** and uncomment **`DB_*`** in **`.env`** for PostgreSQL.
 - **Node 20+** for Vite (`npm install`).
 
 ### First-time setup
@@ -227,7 +227,7 @@ The web UI follows the same stack and styling approach as **Sython** (`~/src/syt
 ```bash
 cd text-to-google-keep
 uv sync
-cp .env.example .env   # edit DJANGO_SECRET_KEY, DB_*, optional DJANGO_USE_SQLITE
+cp .env.example .env   # edit DJANGO_SECRET_KEY; use Postgres only if you set DJANGO_USE_SQLITE=false + DB_*
 npm install
 npm run build          # writes frontend/dist for django-vite (ignored by git; run after clone)
 uv run python manage.py migrate
@@ -245,7 +245,7 @@ npm run dev
 
 ```bash
 export DJANGO_SECRET_KEY=dev-only-change-me
-# optional: export DJANGO_USE_SQLITE=true
+# Postgres: export DJANGO_USE_SQLITE=false
 uv run python manage.py runserver
 ```
 
@@ -262,7 +262,7 @@ Use a real **`DJANGO_SECRET_KEY`**, **`DJANGO_DEBUG=False`**, and configure **`D
 
 ### PostgreSQL
 
-Defaults in **`.env.example`**: database **`ttgk_dev`**, user **`ttgk`**, password **`ttgk_local`**, test database name **`ttgk_test`** (Django creates and drops it when you run **`manage.py test`**). One-time: **`make db-create`** (runs **`scripts/postgres-local.sql`** as **`postgres`**; use **`sudo -u postgres psql … -f scripts/postgres-local.sql`** if your OS uses peer auth). Then **`migrate`**. With **`DJANGO_USE_SQLITE=true`**, dev uses **`db.sqlite3`** and tests use **`db_test.sqlite3`**. Import history lives in **`pages_importlog`** (`ImportLog` model).
+Optional: set **`DJANGO_USE_SQLITE=false`** and uncomment **`DB_*`** in **`.env`** (`ttgk_dev` / **`ttgk`** / **`ttgk_local`**; test DB **`ttgk_test`**). One-time: **`make db-create`** ( **`scripts/postgres-local.sql`** as **`postgres`**; **`sudo -u postgres psql … -f scripts/postgres-local.sql`** on peer-auth systems), then **`migrate`**. SQLite mode uses **`db.sqlite3`** and **`db_test.sqlite3`** for tests. Import history lives in **`pages_importlog`** (`ImportLog` model).
 
 ## Development
 

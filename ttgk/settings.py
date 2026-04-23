@@ -65,7 +65,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "ttgk.wsgi.application"
 
-if os.environ.get("DJANGO_USE_SQLITE", "").lower() in ("1", "true", "yes"):
+# Default SQLite so migrate/runserver work without a local Postgres. Set DJANGO_USE_SQLITE=false for PostgreSQL.
+_sqlite_flag = os.environ.get("DJANGO_USE_SQLITE", "true").strip().lower()
+_use_sqlite = _sqlite_flag not in ("0", "false", "no")
+
+if _use_sqlite:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
