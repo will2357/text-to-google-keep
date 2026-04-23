@@ -39,6 +39,17 @@ text-to-google-keep notes.txt
 text-to-google-keep --reset notes.txt
 ```
 
+## Web UI
+
+Local [Flask](https://flask.palletsprojects.com/) app: paste lines or upload a UTF-8 file, same auth rules as the CLI. Listens on **127.0.0.1:8765** by default (not exposed to your LAN).
+
+```bash
+text-to-google-keep-web
+# open http://127.0.0.1:8765
+```
+
+Optional: `FLASK_SECRET_KEY` for session signing if you change `--host`/`--port`; treat remote access like handing someone your Google session.
+
 ## Publish this repo
 
 ```bash

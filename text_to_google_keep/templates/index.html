@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>text-to-google-keep</title>
+  <style>
+    :root { font-family: system-ui, sans-serif; line-height: 1.45; color: #1a1a1a; background: #f4f4f5; }
+    body { max-width: 52rem; margin: 0 auto; padding: 1.25rem 1rem 2rem; }
+    h1 { font-size: 1.35rem; font-weight: 650; margin: 0 0 0.35rem; }
+    p.sub { margin: 0 0 1rem; color: #52525b; font-size: 0.9rem; }
+    .flash { padding: 0.65rem 0.85rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.92rem; }
+    .flash.error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .flash.ok { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    fieldset { border: 1px solid #d4d4d8; border-radius: 8px; padding: 0.85rem 1rem 1rem; margin: 0 0 1rem; background: #fff; }
+    legend { padding: 0 0.35rem; font-weight: 600; font-size: 0.85rem; }
+    label { display: block; font-size: 0.82rem; font-weight: 500; margin: 0.5rem 0 0.2rem; }
+    label.inline { display: flex; align-items: center; gap: 0.45rem; font-weight: 400; margin-top: 0.65rem; cursor: pointer; }
+    input[type="text"], input[type="password"], input[type="file"], textarea {
+      width: 100%; box-sizing: border-box; font: inherit; padding: 0.45rem 0.55rem; border: 1px solid #d4d4d8; border-radius: 6px;
+    }
+    textarea { min-height: 12rem; font-family: ui-monospace, monospace; font-size: 0.88rem; }
+    button { margin-top: 0.85rem; padding: 0.5rem 1.1rem; font-weight: 600; border-radius: 6px; border: 0; background: #2563eb; color: #fff; cursor: pointer; }
+    button:hover { background: #1d4ed8; }
+    .hint { font-size: 0.78rem; color: #71717a; margin: 0.15rem 0 0; }
+  </style>
+</head>
+<body>
+  <h1>text-to-google-keep</h1>
+  <p class="sub">One Google Keep note per line. Runs on your machine only — use a strong secret if you expose this beyond localhost.</p>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  <form method="post" action="{{ url_for('submit') }}" enctype="multipart/form-data">
+    <fieldset>
+      <legend>Google account</legend>
+      <label for="email">Email</label>
+      <input id="email" name="email" type="text" autocomplete="username" required placeholder="you@gmail.com">
+      <label for="password">Password or app password</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Leave empty if using saved or pasted token">
+      <p class="hint">Omit when a master token is already in your keyring or you paste one below.</p>
+      <label for="master_token">Master token (optional)</label>
+      <textarea id="master_token" name="master_token" rows="2" placeholder="aas_et/…"></textarea>
+      <label class="inline"><input type="checkbox" name="reset" value="1"> Clear saved token for this email before sign-in</label>
+    </fieldset>
+    <fieldset>
+      <legend>Notes</legend>
+      <label for="content">Lines to import</label>
+      <textarea id="content" name="content" placeholder="One line → one note…"></textarea>
+      <label for="file">Or UTF-8 file</label>
+      <input id="file" name="file" type="file" accept=".txt,text/plain,.md,.csv,.log,*/*">
+      <p class="hint">If a file is chosen, it replaces the textarea.</p>
+      <label for="labels">Labels (comma-separated)</label>
+      <input id="labels" name="labels" type="text" placeholder="Shopping, Inbox">
+      <label class="inline"><input type="checkbox" name="blank_lines" value="1"> Import blank lines as empty notes</label>
+    </fieldset>
+    <button type="submit">Import to Keep</button>
+  </form>
+</body>
+</html>

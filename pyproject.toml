@@ -8,10 +8,12 @@ dependencies = [
     "gkeepapi>=0.17.0",
     "click>=8.0",
     "keyring>=25.0",
+    "flask>=3.0",
 ]
 
 [project.scripts]
 text-to-google-keep = "text_to_google_keep.cli:cli"
+text-to-google-keep-web = "text_to_google_keep.web:main"
 
 [build-system]
 requires = ["hatchling"]
