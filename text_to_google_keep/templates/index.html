@@ -14,6 +14,9 @@
     <header class="site-header">
       <div class="site-header__inner">
         <a class="brand" href="{{ url_for('index') }}">text-to-google-keep</a>
+        {% if oauth_ready %}
+        <a class="nav-oauth" href="{{ url_for('oauth_start') }}">Sign in with Google</a>
+        {% endif %}
       </div>
     </header>
 
@@ -33,9 +36,14 @@
           <div class="card">
             <div class="card__header">
               <h2 class="card__title">Google account</h2>
-              <p class="card__desc">Same rules as the CLI — see README: Authenticate with Google.</p>
+              <p class="card__desc">Use <strong>Sign in with Google</strong> (header) for OAuth, or password / master token for gkeepapi — see README.</p>
             </div>
             <div class="card__content">
+              <label class="check">
+                <input type="checkbox" name="use_oauth" value="1" id="use_oauth">
+                Use Google OAuth (official Keep API — recommended for personal Gmail). Complete header sign-in first; leave password empty.
+              </label>
+              <p class="field-hint">OAuth path does not support labels. Uncheck to use gkeepapi (password or master token).</p>
               <div class="field">
                 <label class="field-label" for="email">Email</label>
                 <input class="input" id="email" name="email" type="text" autocomplete="username" required placeholder="you@gmail.com">

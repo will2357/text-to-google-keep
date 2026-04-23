@@ -84,6 +84,18 @@ body {
   color: color-mix(in oklch, var(--color-primary) 85%, white);
 }
 
+.nav-oauth {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.nav-oauth:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .site-main {
   flex: 1;
   display: flex;

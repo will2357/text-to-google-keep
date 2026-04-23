@@ -1,6 +1,9 @@
 # text-to-google-keep
 
-Create **one Google Keep note per line** of a UTF-8 text file (CLI or local web UI). Labels are created in Keep if missing. Uses [gkeepapi](https://github.com/kiwiz/gkeepapi) (unofficial client, not Google’s official API).
+Create **one Google Keep note per line** of a UTF-8 text file (CLI or local web UI).
+
+- **Google OAuth (recommended for personal Gmail)** — real consent screen, official [Google Keep API](https://developers.google.com/workspace/keep/api/guides), refresh token in your OS keyring. **Labels are not supported** (the REST API does not expose labels on create).
+- **gkeepapi (legacy)** — unofficial client with password / [master token](https://gkeepapi.readthedocs.io/en/latest/index.html#obtaining-a-master-token). Supports **labels** but often hits `BadAuthentication` on consumer accounts.
 
 ## Install (uv)
 
@@ -10,9 +13,73 @@ uv venv
 uv pip install -e .
 ```
 
-## Authenticate with Google
+## Google OAuth (personal Gmail — official API)
 
-Sign-in is **not** a Google OAuth consent screen. Your password or **master token** is used only on your machine and, when applicable, stored in the **OS keyring** (same idea as other desktop clients using gkeepapi).
+This path uses Google’s documented **OAuth 2.0** flow and **`https://www.googleapis.com/auth/keep`**. It is the supported way to act as **yourself** with a normal `@gmail.com` account, as long as Google lets your Cloud project use the Keep API (enable the API, consent screen, test users — below).
+
+### One-time Google Cloud setup
+
+1. Open [Google Cloud Console](https://console.cloud.google.com/) and create or pick a **project**.
+2. **APIs & Services → Library** — enable **Google Keep API**.
+3. **APIs & Services → OAuth consent screen** — choose **External** (unless you only use Workspace internal). Add your **Gmail address** under **Test users** while the app is in **Testing** (required until you publish and complete verification, if Google asks for it).
+4. Under **Data Access / Scopes**, add the non-sensitive scope **`https://www.googleapis.com/auth/keep`** (or add it when Google prompts during client setup).
+5. **APIs & Services → Credentials → Create credentials → OAuth client ID**  
+   - **Desktop app** — download JSON. Use this for **`text-to-google-keep --oauth`** (browser opens on a random localhost port).  
+   - **Web application** — add **Authorized redirect URI** exactly  
+     `http://127.0.0.1:8765/oauth/callback`  
+     (match **host and port** if you run the Flask app elsewhere). Download JSON for the **web** UI sign-in button.
+6. Save the downloaded file on your machine, e.g. `~/client_secret.json`, and point the app at it with **`GOOGLE_KEEP_CLIENT_SECRETS`** or **`--client-secrets`**, or put a copy named **`client_secret.json`** in the directory from which you start the CLI or web server.
+
+### CLI (OAuth)
+
+First run (browser opens; you approve access):
+
+```bash
+export GOOGLE_KEEP_CLIENT_SECRETS="$HOME/client_secret.json"
+text-to-google-keep --oauth sample.txt
+```
+
+Later runs reuse the **refresh token** stored in the keyring (service **`text-to-google-keep-oauth`**, username = your email lowercased). Set **`GOOGLE_EMAIL`** if you use multiple accounts.
+
+```bash
+export GOOGLE_EMAIL='you@gmail.com'
+text-to-google-keep --oauth shopping.txt
+```
+
+Clear only OAuth storage:
+
+```bash
+text-to-google-keep --oauth --reset-oauth --email you@gmail.com notes.txt
+```
+
+### Web UI (OAuth)
+
+1. Set **`GOOGLE_KEEP_CLIENT_SECRETS`** (or place **`client_secret.json`** in the process working directory) so the server can find the **Web** (or Desktop) client JSON whose redirect URI matches this app.
+2. Start **`text-to-google-keep-web`**, open the app URL, click **Sign in with Google** in the header, complete consent.
+3. On the form, check **Use Google OAuth**, enter the **same** email, leave password empty, then import.
+
+### Keyring entries for OAuth
+
+| Field | Value |
+|--------|--------|
+| **Service** | `text-to-google-keep-oauth` |
+| **Username** | Google email, lowercased (same as gkeepapi normalization) |
+
+Read the stored refresh bundle (JSON string) with:
+
+```bash
+uv run python -c "import keyring; print(keyring.get_password('text-to-google-keep-oauth', 'you@gmail.com') or '(none)')"
+```
+
+### If the Keep API returns HTTP 403
+
+Your account must be allowed on the **OAuth consent screen** (Test users while in Testing). The Cloud project must have **Keep API** enabled. If Google changes policy for consumer accounts, check the [Keep API overview](https://developers.google.com/workspace/keep/api/guides) and Console errors for the exact message.
+
+---
+
+## Authenticate with Google (gkeepapi / legacy)
+
+The gkeepapi path is **not** Google’s OAuth consent screen. Your password or **master token** is used only on your machine and, when applicable, stored in the **OS keyring** under service **`text-to-google-keep`**.
 
 ### Order of sign-in (CLI and web)
 
@@ -63,9 +130,11 @@ text-to-google-keep sample.txt
 
 When you authenticate **only** via `--token` / `KEEP_MASTER_TOKEN` / the web **Master token** field, this app **does not** overwrite the keyring entry from that path. The keyring is updated only after a successful **password** sign-in (see [Order of sign-in](#order-of-sign-in-cli-and-web)).
 
-### Keyring: where this app stores the master token
+### Keyring: where this app stores the gkeepapi master token
 
-If password sign-in ever succeeds, this program saves the returned master token in your **OS keyring** so later runs can use `Keep.authenticate` without typing a password.
+(OAuth refresh tokens use service **`text-to-google-keep-oauth`** — see [Google OAuth](#google-oauth-personal-gmail--official-api) above.)
+
+If gkeepapi password sign-in ever succeeds, this program saves the returned master token in your **OS keyring** so later runs can use `Keep.authenticate` without typing a password.
 
 | What | Value |
 |------|--------|
