@@ -32,11 +32,9 @@ def create_app() -> Flask:
         blank_lines = request.form.get("blank_lines") == "1"
         labels = parse_labels_csv(request.form.get("labels") or "")
 
-        raw_text: str | None = None
         up = request.files.get("file")
         if up and up.filename:
-            raw = up.read()
-            raw_text = raw.decode("utf-8", errors="replace")
+            raw_text = up.read().decode("utf-8", errors="replace")
         else:
             raw_text = request.form.get("content") or ""
 

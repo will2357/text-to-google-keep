@@ -52,8 +52,6 @@ def cli(
             click.echo("Master token saved to your OS keyring for next runs.")
     except KeepUserError as e:
         raise click.ClickException(str(e)) from e
-    except click.ClickException:
-        raise
     except Exception as e:
         raise click.ClickException(repr(e)) from e
     try:

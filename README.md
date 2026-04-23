@@ -1,8 +1,6 @@
 # text-to-google-keep
 
-Create **one Google Keep note per line** of a UTF-8 text file. Labels are created in Keep if they do not already exist.
-
-Uses [gkeepapi](https://github.com/kiwiz/gkeepapi) (unofficial Keep client), not Google’s official API.
+Create **one Google Keep note per line** of a UTF-8 text file (CLI or local web UI). Labels are created in Keep if missing. Uses [gkeepapi](https://github.com/kiwiz/gkeepapi) (unofficial client, not Google’s official API).
 
 ## Install (uv)
 
@@ -14,7 +12,7 @@ uv pip install -e .
 
 ## Authenticate with Google
 
-Sign-in follows [gkeepapi](https://github.com/kiwiz/gkeepapi): it is **not** a “Sign in with Google” OAuth consent screen. Your password or **master token** is used only on your machine and, when applicable, stored in the **OS keyring** (same idea as other desktop mail/Keep clients).
+Sign-in is **not** a Google OAuth consent screen. Your password or **master token** is used only on your machine and, when applicable, stored in the **OS keyring** (same idea as other desktop clients using gkeepapi).
 
 ### Order of sign-in (CLI and web)
 
@@ -81,13 +79,10 @@ text-to-google-keep-web
 
 Optional: `FLASK_SECRET_KEY` for session signing if you change `--host`/`--port`; treat remote access like handing someone your Google session.
 
-## Publish this repo
+## Development
 
 ```bash
-cd text-to-google-keep
-git init
-git add .
-git commit -m "task: initial text-to-google-keep CLI"
+uv sync
+uv run text-to-google-keep --help
+uv run text-to-google-keep-web --help
 ```
-
-Create an empty repository on GitHub/GitLab, then `git remote add origin …` and `git push -u origin main`.
