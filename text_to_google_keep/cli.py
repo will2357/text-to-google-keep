@@ -11,7 +11,7 @@ import gkeepapi
 import gkeepapi.exception as gexc
 import keyring
 
-KEYRING_SERVICE = "keep-lines-to-keep"
+KEYRING_SERVICE = "text-to-google-keep"
 
 
 def _token_key(email: str) -> str:
@@ -60,7 +60,7 @@ def _login_interactive(email: str, reset: bool, master: str | None) -> gkeepapi.
             raise click.ClickException(
                 "Saved token failed: "
                 + str(e)
-                + "\nTry: keep-lines --reset ... then sign in again, or pass --token."
+                + "\nTry: text-to-google-keep --reset ... then sign in again, or pass --token."
             ) from e
         return keep
     pw = getpass.getpass("Google password (or App Password if 2SV is on): ")
