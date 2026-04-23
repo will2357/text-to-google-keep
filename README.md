@@ -70,14 +70,43 @@ Sign-in options, app passwords, master tokens, and errors are covered in **[Auth
 
 ## Web UI
 
-Local [Flask](https://flask.palletsprojects.com/) app: paste lines or upload a UTF-8 file, same auth rules as the CLI. Listens on **127.0.0.1:8765** by default (not exposed to your LAN).
+Local [Flask](https://flask.palletsprojects.com/) app: paste lines or upload a UTF-8 file. **Authentication is the same as the CLI** (see [Authenticate with Google](#authenticate-with-google)).
+
+### Run the web server (recommended: `uv run`)
+
+From the **repository root** (the directory that contains `pyproject.toml`):
+
+```bash
+cd text-to-google-keep          # or: cd /path/to/your/clone
+uv sync                         # installs deps + this project into .venv
+uv run text-to-google-keep-web   # note: space after "uv run", not a hyphen
+```
+
+Leave that terminal open. In a browser, open:
+
+**http://127.0.0.1:8765**
+
+The server listens on **127.0.0.1** (localhost only) and port **8765** by default. Stop it with **Ctrl+C** in the same terminal.
+
+**Change host or port** (see all options):
+
+```bash
+uv run text-to-google-keep-web --help
+uv run text-to-google-keep-web --host 127.0.0.1 --port 9000
+```
+
+### Run after `uv pip install -e .` (activated venv)
+
+If you followed [Install (uv)](#install-uv) and ran `source .venv/bin/activate`, you can start the app **without** `uv run`:
 
 ```bash
 text-to-google-keep-web
-# open http://127.0.0.1:8765
+# then open http://127.0.0.1:8765
 ```
 
-Optional: `FLASK_SECRET_KEY` for session signing if you change `--host`/`--port`; treat remote access like handing someone your Google session.
+### Optional: `FLASK_SECRET_KEY`
+
+If you change `--host` / `--port` so other machines can reach the app, set `FLASK_SECRET_KEY` to a long random string for session signing, and treat network exposure like handing someone your Google session.
 
 ## Development
 
@@ -86,3 +115,5 @@ uv sync
 uv run text-to-google-keep --help
 uv run text-to-google-keep-web --help
 ```
+
+Use **`uv run text-to-google-keep-web`** (see [Web UI](#web-ui) above) to start the server during development.
