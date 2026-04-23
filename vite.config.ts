@@ -1,12 +1,12 @@
 import path from "path"
 import tailwindcss from "@tailwindcss/vite"
-import react from "@vitejs/plugin-react-swc"
 import { defineConfig } from "vite"
 
-export default defineConfig({
-  plugins: [react(), tailwindcss()],
+export default defineConfig(({ command }) => ({
+  plugins: [tailwindcss()],
   root: ".",
-  base: "/static/",
+  // Keep /static/ for production build output, but use / in dev.
+  base: command === "build" ? "/static/" : "/",
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./frontend"),
@@ -21,9 +21,9 @@ export default defineConfig({
   },
   server: {
     host: "localhost",
-    port: 5173,
+    port: 5175,
     strictPort: true,
-    origin: "http://localhost:5173",
+    origin: "http://localhost:5175",
     cors: true,
   },
-})
+}))

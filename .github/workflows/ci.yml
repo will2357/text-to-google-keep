@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: ttgk
+          POSTGRES_PASSWORD: ttgk_local
+          POSTGRES_DB: ttgk_dev
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ttgk -d ttgk_dev"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    env:
+      DJANGO_SECRET_KEY: ci-secret-key
+      DB_NAME: ttgk_dev
+      DB_USER: ttgk
+      DB_PASSWORD: ttgk_local
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_TEST_NAME: ttgk_test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Set up Python
+        run: uv python install 3.14
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: make install
+
+      - name: Run test suite
+        run: make test

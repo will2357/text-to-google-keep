@@ -102,7 +102,8 @@ DJANGO_VITE = {
     "default": {
         "dev_mode": DEBUG,
         "dev_server_host": "localhost",
-        "dev_server_port": 5173,
+        "dev_server_port": 5175,
+        "ws_client_url": "/@vite/client",
         "manifest_path": BASE_DIR / "frontend" / "dist" / "manifest.json",
     }
 }

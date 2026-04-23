@@ -14,7 +14,7 @@ GitHub Pages serves **only static files** from `docs/` (landing page + links). I
 **One-time setup**
 
 1. In GitHub: **Settings → Pages → Build and deployment**, set **Source** to **GitHub Actions** (not “Deploy from a branch”).
-2. Push to **`main`** or **`master`**, or run workflow **Deploy GitHub Pages** manually (**Actions** tab).
+2. Push to **`main`** or **`master`** (CI must pass; deploy runs after CI), or run workflow **Deploy GitHub Pages** manually (**Actions** tab).
 3. After a green run, open the environment URL (e.g. `https://<user>.github.io/<repo>/`).
 
 The workflow **`.github/workflows/deploy-github-pages.yml`** substitutes `__GITHUB_REPOSITORY__` in `docs/index.html` with `owner/repo` at deploy time. **`docs/.nojekyll`** disables Jekyll so paths behave predictably.
@@ -40,7 +40,7 @@ This path uses Google’s documented **OAuth 2.0** flow and **`https://www.googl
 5. **APIs & Services → Credentials → Create credentials → OAuth client ID**  
    - **Desktop app** — download JSON. Use this for **`text-to-google-keep --oauth`** (browser opens on a random localhost port).  
    - **Web application** — add **Authorized redirect URI** exactly  
-     `http://127.0.0.1:8000/oauth/callback/`  
+     `http://127.0.0.1:8001/oauth/callback/`  
      (match **host, port, and trailing slash** if you run Django elsewhere). Download JSON for the **Django** web UI “Sign in with Google” button.
 6. Save the downloaded file on your machine, e.g. `~/client_secret.json`, and point the app at it with **`GOOGLE_KEEP_CLIENT_SECRETS`** or **`--client-secrets`**, or put a copy named **`client_secret.json`** in the directory from which you start the CLI or **`manage.py runserver`**.
 
@@ -69,7 +69,7 @@ text-to-google-keep --oauth --reset-oauth --email you@gmail.com notes.txt
 ### Web UI (OAuth, Django)
 
 1. Set **`GOOGLE_KEEP_CLIENT_SECRETS`** (or place **`client_secret.json`** in the process working directory) so Django can find the **Web** client JSON whose redirect URI matches **`/oauth/callback/`** on your dev server.
-2. Run **`python manage.py runserver`** (see [Web app (Django)](#web-app-django) below), open **http://127.0.0.1:8000/**, click **Sign in with Google** in the header, complete consent.
+2. Run **`python manage.py runserver`** (see [Web app (Django)](#web-app-django) below), open **http://127.0.0.1:8001/**, click **Sign in with Google** in the header, complete consent.
 3. On the form, check **Use Google OAuth**, enter the **same** email, leave password empty, then import.
 
 ### Keyring entries for OAuth
@@ -241,14 +241,14 @@ uv run python manage.py migrate
 npm run dev
 ```
 
-**Terminal B — Django** (`DJANGO_DEBUG=True` enables `django-vite` dev mode against `http://localhost:5173`):
+**Terminal B — Django** (`DJANGO_DEBUG=True` enables `django-vite` dev mode against `http://localhost:5175`):
 
 ```bash
 export DJANGO_SECRET_KEY=dev-only-change-me
 uv run python manage.py runserver
 ```
 
-Open **http://127.0.0.1:8000/**. OAuth redirect URIs must match this host/port (see [Google OAuth](#google-oauth-personal-gmail--official-api)).
+Open **http://127.0.0.1:8001/**. OAuth redirect URIs must match this host/port (see [Google OAuth](#google-oauth-personal-gmail--official-api)).
 
 ### Production-style assets
 
