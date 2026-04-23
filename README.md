@@ -5,6 +5,8 @@ Create **one Google Keep note per line** of a UTF-8 text file (**CLI** or **Djan
 - **Google OAuth (recommended for personal Gmail)** — real consent screen, official [Google Keep API](https://developers.google.com/workspace/keep/api/guides), refresh token in your OS keyring. **Labels are not supported** (the REST API does not expose labels on create).
 - **gkeepapi (legacy)** — unofficial client with password / [master token](https://gkeepapi.readthedocs.io/en/latest/index.html#obtaining-a-master-token). Supports **labels** but often hits `BadAuthentication` on consumer accounts.
 
+**Contents:** [GitHub Pages](#github-pages-static-site) · [Install](#install-uv) · [Google OAuth](#google-oauth-personal-gmail--official-api) · [gkeepapi / legacy](#authenticate-with-google-gkeepapi--legacy) · [Usage](#usage) · [Web app](#web-app-django) · [Development](#development)
+
 ## GitHub Pages (static site)
 
 GitHub Pages serves **only static files** from `docs/` (landing page + links). It **cannot** run Django, PostgreSQL, or the Keep importer — use the [CLI](#install-uv) or [local Django app](#web-app-django) for that.
@@ -209,7 +211,7 @@ text-to-google-keep notes.txt -l Shopping -l Inbox
 text-to-google-keep notes.txt --blank-lines
 ```
 
-Sign-in options, app passwords, master tokens, and errors are covered in **[Authenticate with Google](#authenticate-with-google)** above.
+Sign-in options, app passwords, master tokens, and errors are covered in **[Authenticate with Google (gkeepapi / legacy)](#authenticate-with-google-gkeepapi--legacy)** above.
 
 ## Web app (Django)
 
