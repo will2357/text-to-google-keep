@@ -33,32 +33,90 @@ Saved tokens are per email; use **`--reset`** (CLI) or **Clear saved token** (we
 
 ### Master token (when the password path fails)
 
-If password / App Password sign-in fails (including **`BadAuthentication`**), you need a **master token** (often a string starting with `aas_et/`).
+If password / App Password sign-in fails (including **`BadAuthentication`**), you need a **master token**: a long secret string gkeepapi can pass to `Keep.authenticate(email, token)`. It often starts with **`aas_et/`** (treat it like a password).
 
-Typical approach used by the community: run a small **gpsoauth**-based helper (see gkeepapi’s README and issues) that performs Google’s **OAuth / device** style exchange so you end up with that token—often by copying a token or cookie from a browser session after you sign in to Google in the browser. **This is fragile and undocumented by Google**; treat any script you use like a password.
+#### How to obtain one (upstream flow)
 
-**CLI:** `--token 'aas_et/...'` or:
+gkeepapi’s auth stack ultimately uses **[gpsoauth](https://github.com/simon-weber/gpsoauth)**. Follow the **maintained** instructions here (they change when Google changes things):
+
+1. **[gkeepapi docs — “Obtaining a Master Token”](https://gkeepapi.readthedocs.io/en/latest/index.html#obtaining-a-master-token)** — overview and a Docker-based recipe you can copy from the current page (do not trust stale copies in random blogs).
+2. **[gpsoauth — “Alternative flow”](https://github.com/simon-weber/gpsoauth#alternative-flow)** — the usual inputs are your **email**, a **Google OAuth token** (from a browser session / account login flow; *not* the final master token), and an **Android ID** string as described there. The library exchanges those for the **master token** you paste into this app.
+
+You will need to get the OAuth token and Android ID from steps described in that gpsoauth section (often involving browser devtools or a helper script). **Google does not document this for end users**; flows break without warning. Only run code you understand; never paste a master token into untrusted sites.
+
+#### After you have the token
+
+**CLI** (one run):
 
 ```bash
-export KEEP_MASTER_TOKEN='aas_et/...'
-text-to-google-keep notes.txt
+text-to-google-keep sample.txt --token 'aas_et/…YOUR_TOKEN…'
 ```
 
-Using only a supplied or keyring **master token** does not write a new token; the keyring is updated after a successful **password** sign-in when Google returns a new master token (see order above).
+Or for several commands in one shell:
 
-**Web:** paste the token into **Master token**. If the keyring already has a valid token for that email, password can stay empty; otherwise provide password or token as required by your account.
+```bash
+export KEEP_MASTER_TOKEN='aas_et/…YOUR_TOKEN…'
+text-to-google-keep sample.txt
+```
+
+**Web UI:** paste the full token into **Master token** and submit the form.
+
+When you authenticate **only** via `--token` / `KEEP_MASTER_TOKEN` / the web **Master token** field, this app **does not** overwrite the keyring entry from that path. The keyring is updated only after a successful **password** sign-in (see [Order of sign-in](#order-of-sign-in-cli-and-web)).
+
+### Keyring: where this app stores the master token
+
+If password sign-in ever succeeds, this program saves the returned master token in your **OS keyring** so later runs can use `Keep.authenticate` without typing a password.
+
+| What | Value |
+|------|--------|
+| **Keyring “service”** | `text-to-google-keep` (exact string) |
+| **Keyring “username” / account** | Your Google email with **leading/trailing spaces removed and lowercased** (e.g. `You@Gmail.com` → `you@gmail.com`) |
+
+The same email normalization applies when you use **`--reset`**: pass the same address you use for sign-in.
+
+### Keyring: read the saved token (same machine)
+
+From the **repository root**, with dependencies installed (`uv sync` or your venv active), replace the email with yours:
+
+```bash
+uv run python -c "import keyring; print(keyring.get_password('text-to-google-keep', 'you@gmail.com') or '(no token stored for this email)')"
+```
+
+If you use a venv and `keyring` is on `PATH`:
+
+```bash
+python -c "import keyring; print(keyring.get_password('text-to-google-keep', 'you@gmail.com') or '(no token stored)')"
+```
+
+**Linux (GNOME / Secret Service):** Python’s default backend stores items with attributes `service`, `username`, and `application` (`Python keyring library`). If you have **`secret-tool`** (from `libsecret`):
+
+```bash
+secret-tool lookup application 'Python keyring library' service 'text-to-google-keep' username 'you@gmail.com'
+```
+
+**GUI:** search your password manager for **`text-to-google-keep`** (e.g. **Passwords and Keys / Seahorse** on GNOME, **Keychain Access** on macOS, **Credential Manager** on Windows). The entry label is often like `Password for 'you@gmail.com' on 'text-to-google-keep'`.
+
+### Keyring: delete the saved token without the CLI `--reset` flag
+
+Same email normalization as above:
+
+```bash
+uv run python -c "import keyring; keyring.delete_password('text-to-google-keep', 'you@gmail.com')"
+```
+
+If nothing was stored, Python raises `PasswordDeleteError` — that is normal.
 
 ### “Browser verification” / `BrowserLoginRequiredException`
 
-If the library reports that Google wants **browser verification**, open the URL it prints, complete verification in the browser, then obtain a **master token** via a helper as above and use **`--token`** or the web form—password-only may not proceed until Google is satisfied.
+If the library reports that Google wants **browser verification**, open the URL it prints, complete verification in the browser, then obtain a **master token** via the [gpsoauth alternative flow](https://github.com/simon-weber/gpsoauth#alternative-flow) and use **`--token`** / **`KEEP_MASTER_TOKEN`** / the web **Master token** field—password-only may not proceed until Google is satisfied.
 
-### Clear stored credentials
+### Clear stored credentials (built-in)
 
 ```bash
 text-to-google-keep --reset notes.txt
 ```
 
-Use the same email you will use on the next run; only that email’s saved token is removed from the keyring.
+Use the **same** `--email` / `GOOGLE_EMAIL` you use for sign-in. That removes only the keyring entry for **`text-to-google-keep`** + that normalized email. On the **web** UI, use **Clear saved token** for the same effect.
 
 ## Usage
 
