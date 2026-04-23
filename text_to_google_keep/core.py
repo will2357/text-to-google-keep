@@ -97,7 +97,9 @@ def login_keep(
         raise KeepUserError(
             "Sign-in failed: "
             + str(e)
-            + "\nWith 2-Step Verification, use a Google App Password here, or use --token."
+            + "\nWith 2-Step Verification, try a Google App Password first—but Google often still returns "
+            "BadAuthentication for unofficial Keep clients. Then use a master token (README: Authenticate "
+            "with Google → Master token); CLI: --token or KEEP_MASTER_TOKEN."
         ) from e
     t = keep.getMasterToken()
     saved = bool(t and not explicit)

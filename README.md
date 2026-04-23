@@ -25,11 +25,15 @@ Saved tokens are per email; use **`--reset`** (CLI) or **Clear saved token** (we
 ### Password
 
 - Use your normal Google account **email** and account **password** only if Google still allows that kind of sign-in for your account.
-- With **[2-Step Verification](https://myaccount.google.com/signinoptions/two-step-verification)** on, use a **[Google App Password](https://myaccount.google.com/apppasswords)** (16 characters) in the password field or prompt instead of your regular password—Google treats that as a separate credential for “mail / less secure clients” style access.
+- With **[2-Step Verification](https://myaccount.google.com/signinoptions/two-step-verification)** on, try a **[Google App Password](https://myaccount.google.com/apppasswords)** (16 characters, no spaces) in the password field or prompt instead of your regular password.
+
+### `BadAuthentication` even with an App Password
+
+**Very common.** Google often rejects password-based sign-in for **Keep** for this unofficial client, and the error looks like `('BadAuthentication', None)` whether you used a normal password or an App Password. That does **not** mean your App Password is wrong—it usually means you must use a **master token** instead. Go to **[Master token](#master-token-when-the-password-path-fails)** below.
 
 ### Master token (when the password path fails)
 
-Many accounts see **`BadAuthentication`** or similar: Google blocks plain password login for Keep via this API. Then you need a **master token** (often shown as a string starting with `aas_et/`).
+If password / App Password sign-in fails (including **`BadAuthentication`**), you need a **master token** (often a string starting with `aas_et/`).
 
 Typical approach used by the community: run a small **gpsoauth**-based helper (see gkeepapi’s README and issues) that performs Google’s **OAuth / device** style exchange so you end up with that token—often by copying a token or cookie from a browser session after you sign in to Google in the browser. **This is fragile and undocumented by Google**; treat any script you use like a password.
 
