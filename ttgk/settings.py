@@ -65,32 +65,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "ttgk.wsgi.application"
 
-# Default SQLite so migrate/runserver work without a local Postgres. Set DJANGO_USE_SQLITE=false for PostgreSQL.
-_sqlite_flag = os.environ.get("DJANGO_USE_SQLITE", "true").strip().lower()
-_use_sqlite = _sqlite_flag not in ("0", "false", "no")
-
-if _use_sqlite:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-            "TEST": {"NAME": str(BASE_DIR / "db_test.sqlite3")},
-        }
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("DB_NAME", "ttgk_dev"),
+        "USER": os.environ.get("DB_USER", "ttgk"),
+        "PASSWORD": os.environ.get("DB_PASSWORD", "ttgk_local"),
+        "HOST": os.environ.get("DB_HOST", "localhost"),
+        "PORT": os.environ.get("DB_PORT", "5432"),
+        "TEST": {
+            "NAME": os.environ.get("DB_TEST_NAME", "ttgk_test"),
+        },
     }
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": os.environ.get("DB_NAME", "ttgk_dev"),
-            "USER": os.environ.get("DB_USER", "ttgk"),
-            "PASSWORD": os.environ.get("DB_PASSWORD", "ttgk_local"),
-            "HOST": os.environ.get("DB_HOST", "localhost"),
-            "PORT": os.environ.get("DB_PORT", "5432"),
-            "TEST": {
-                "NAME": os.environ.get("DB_TEST_NAME", "ttgk_test"),
-            },
-        }
-    }
+}
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},

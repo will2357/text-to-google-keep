@@ -219,7 +219,7 @@ The web UI follows the same stack and styling approach as **Sython** (`~/src/syt
 
 ### Prerequisites
 
-- **SQLite by default** (`db.sqlite3`; **`make migrate`** works with no database server). Set **`DJANGO_USE_SQLITE=false`** and uncomment **`DB_*`** in **`.env`** for PostgreSQL.
+- **PostgreSQL** — create role/database (see **`make db-create`** / **`scripts/postgres-local.sql`**) and set **`DB_*`** in **`.env`** (see **`.env.example`**).
 - **Node 20+** for Vite (`npm install`).
 
 ### First-time setup
@@ -227,7 +227,7 @@ The web UI follows the same stack and styling approach as **Sython** (`~/src/syt
 ```bash
 cd text-to-google-keep
 uv sync
-cp .env.example .env   # edit DJANGO_SECRET_KEY; use Postgres only if you set DJANGO_USE_SQLITE=false + DB_*
+cp .env.example .env   # edit DJANGO_SECRET_KEY and DB_* (match your Postgres)
 npm install
 npm run build          # writes frontend/dist for django-vite (ignored by git; run after clone)
 uv run python manage.py migrate
@@ -245,7 +245,6 @@ npm run dev
 
 ```bash
 export DJANGO_SECRET_KEY=dev-only-change-me
-# Postgres: export DJANGO_USE_SQLITE=false
 uv run python manage.py runserver
 ```
 
@@ -262,9 +261,11 @@ Use a real **`DJANGO_SECRET_KEY`**, **`DJANGO_DEBUG=False`**, and configure **`D
 
 ### PostgreSQL
 
-Optional: set **`DJANGO_USE_SQLITE=false`** and uncomment **`DB_*`** in **`.env`** (`ttgk_dev` / **`ttgk`** / **`ttgk_local`**; test DB **`ttgk_test`**). One-time: **`make db-create`** ( **`scripts/postgres-local.sql`** as **`postgres`**; **`sudo -u postgres psql … -f scripts/postgres-local.sql`** on peer-auth systems), then **`migrate`**. SQLite mode uses **`db.sqlite3`** and **`db_test.sqlite3`** for tests. Import history lives in **`pages_importlog`** (`ImportLog` model).
+**`.env.example`** defaults: **`ttgk_dev`**, user **`ttgk`**, password **`ttgk_local`**, test DB name **`ttgk_test`** (Django creates/drops it for **`manage.py test`**). One-time: **`make db-create`** ( **`scripts/postgres-local.sql`** as **`postgres`**; **`sudo -u postgres psql … -f scripts/postgres-local.sql`** on peer-auth systems), then **`migrate`**. Import history lives in **`pages_importlog`** (`ImportLog` model).
 
 ## Development
+
+**`manage.py test`** needs a running **PostgreSQL** instance matching **`.env`** (same as **`make db-create`** defaults or your own **`DB_*`**).
 
 ```bash
 uv sync

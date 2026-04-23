@@ -22,7 +22,7 @@ install: ## uv sync + npm install
 init-env: ## Copy .env.example → .env if .env is missing
 	@if [ ! -f .env ]; then cp .env.example .env && echo "Created .env"; else echo ".env already exists"; fi
 
-bootstrap: init-env install build migrate ## First-time setup (edit .env secret; Postgres needs DJANGO_USE_SQLITE=false + db-create)
+bootstrap: init-env install build migrate ## First-time setup (edit .env; make db-create for local Postgres)
 
 db-create: ## Postgres role ttgk + DB ttgk_dev (psql -U postgres; use sudo -u postgres if needed)
 	psql -U postgres -v ON_ERROR_STOP=1 -f scripts/postgres-local.sql
@@ -48,7 +48,7 @@ dev: ## Run Vite + Django (Ctrl+C stops both)
 dev-vite: ## Vite dev server (HMR on :5173)
 	$(NPM) run dev
 
-dev-django: ## Django runserver on :8000 (SQLite default; set DJANGO_USE_SQLITE=false for Postgres)
+dev-django: ## Django runserver on :8000 (PostgreSQL from .env)
 	$(UV) run python manage.py runserver
 
 clean: ## Remove frontend/dist
