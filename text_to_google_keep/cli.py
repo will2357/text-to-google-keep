@@ -119,11 +119,11 @@ def cli(
     click.echo(f"Imported {n} note(s) from {file}.")
 
 
-def main() -> None:
+def main() -> None:  # pragma: no cover
     cli()
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     try:
         main()
     except click.ClickException as e:

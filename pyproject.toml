@@ -27,3 +27,22 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["text_to_google_keep", "ttgk", "pages"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "ttgk.settings"
+python_files = ["test_*.py", "*_test.py"]
+addopts = "--cov=text_to_google_keep --cov=pages --cov=ttgk --cov-report=term-missing --cov-fail-under=90 -q"
+
+[tool.coverage.run]
+omit = [
+    "*/migrations/*",
+    "*/wsgi.py",
+    "pages/tests.py",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+    "pytest-cov>=7.1.0",
+    "pytest-django>=4.12.0",
+]

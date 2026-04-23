@@ -12,7 +12,7 @@ help: ## Show targets
 	@echo ""
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## ' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "} {printf "  %-14s %s\n", $$1, $$2}'
 	@echo ""
-	@echo "Local web: $(MAKE) dev (Vite + Django) — http://127.0.0.1:8000/"
+	@echo "Local web: $(MAKE) dev (Vite + Django) — http://127.0.0.1:8001/"
 	@echo "Or split: $(MAKE) dev-vite | $(MAKE) dev-django · README for .env / OAuth."
 
 install: ## uv sync + npm install
@@ -42,8 +42,9 @@ build: ## Frontend production build (tsc + vite)
 typecheck: ## TypeScript check only
 	$(NPM) run typecheck
 
-test: ## Django tests + npm typecheck
-	$(UV) run python manage.py test
+test: ## Backend + frontend tests with coverage, then typecheck
+	$(UV) run pytest
+	$(NPM) run test:frontend
 	$(NPM) run typecheck
 
 check: test build ## CI-style: tests, typecheck, and frontend build
@@ -51,11 +52,11 @@ check: test build ## CI-style: tests, typecheck, and frontend build
 dev: ## Run Vite + Django (Ctrl+C stops both)
 	@./scripts/dev.sh
 
-dev-vite: ## Vite dev server (HMR on :5173)
+dev-vite: ## Vite dev server (HMR on :5175)
 	$(NPM) run dev
 
-dev-django: ## Django runserver on :8000 (PostgreSQL from .env)
-	$(UV) run python manage.py runserver
+dev-django: ## Django runserver on :8001 (set DJANGO_PORT to override)
+	@DJANGO_PORT=$${DJANGO_PORT:-8001} $(UV) run python manage.py runserver 127.0.0.1:$${DJANGO_PORT}
 
 clean: ## Remove frontend/dist
 	rm -rf frontend/dist
