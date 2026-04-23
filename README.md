@@ -261,7 +261,12 @@ Use a real **`DJANGO_SECRET_KEY`**, **`DJANGO_DEBUG=False`**, and configure **`D
 
 ### PostgreSQL
 
-**`.env.example`** defaults: **`ttgk_dev`**, user **`ttgk`**, password **`ttgk_local`**, test DB name **`ttgk_test`** (Django creates/drops it for **`manage.py test`**). One-time: **`make db-create`** ( **`scripts/postgres-local.sql`** as **`postgres`**; **`sudo -u postgres psql … -f scripts/postgres-local.sql`** on peer-auth systems), then **`migrate`**. Import history lives in **`pages_importlog`** (`ImportLog` model).
+**`.env.example`** defaults: **`ttgk_dev`**, user **`ttgk`**, password **`ttgk_local`**, test DB name **`ttgk_test`** (Django creates/drops it for **`manage.py test`**).
+
+- **Host Postgres:** run **`make db-create`** once as a superuser (**`psql -U postgres …`** or **`sudo -u postgres psql -v ON_ERROR_STOP=1 -f scripts/postgres-local.sql`**). The script is **idempotent**—it **sets the `ttgk` password to `ttgk_local`**, which fixes **`FATAL: password authentication failed for user "ttgk"`** when **`DB_*`** in **`.env`** still match **`.env.example`**.
+- **Docker (no local superuser):** **`make db-up`**, then set **`DB_PORT=5433`** (and **`DB_HOST=127.0.0.1`**) in **`.env`** so Django hits the container mapped port. **`make db-down`** stops it.
+
+Then **`migrate`**. Import history lives in **`pages_importlog`** (`ImportLog` model).
 
 ## Development
 
