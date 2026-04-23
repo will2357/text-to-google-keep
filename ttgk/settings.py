@@ -1,5 +1,4 @@
 import os
-import sys
 from pathlib import Path
 
 from django.core.exceptions import ImproperlyConfigured
@@ -71,6 +70,7 @@ if os.environ.get("DJANGO_USE_SQLITE", "").lower() in ("1", "true", "yes"):
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": BASE_DIR / "db.sqlite3",
+            "TEST": {"NAME": str(BASE_DIR / "db_test.sqlite3")},
         }
     }
 else:
@@ -78,11 +78,13 @@ else:
         "default": {
             "ENGINE": "django.db.backends.postgresql",
             "NAME": os.environ.get("DB_NAME", "ttgk_dev"),
-            "USER": os.environ.get("DB_USER", "dev"),
-            "PASSWORD": os.environ.get("DB_PASSWORD", "dev"),
+            "USER": os.environ.get("DB_USER", "ttgk"),
+            "PASSWORD": os.environ.get("DB_PASSWORD", "ttgk_local"),
             "HOST": os.environ.get("DB_HOST", "localhost"),
             "PORT": os.environ.get("DB_PORT", "5432"),
-            "TEST": {"NAME": "ttgk_test"},
+            "TEST": {
+                "NAME": os.environ.get("DB_TEST_NAME", "ttgk_test"),
+            },
         }
     }
 
@@ -118,18 +120,3 @@ INERTIA_LAYOUT = "base.html"
 
 CSRF_HEADER_NAME = "HTTP_X_XSRF_TOKEN"
 CSRF_COOKIE_NAME = "XSRF-TOKEN"
-
-
-def _is_manage_py_test_command() -> bool:
-    argv = sys.argv
-    for j, arg in enumerate(argv):
-        if arg.endswith("manage.py") and j + 1 < len(argv) and argv[j + 1] == "test":
-            return True
-    return False
-
-
-if _is_manage_py_test_command():
-    DATABASES["default"] = {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": ":memory:",
-    }

@@ -5,7 +5,7 @@ export DJANGO_SECRET_KEY ?= dev-only-change-me
 .DEFAULT_GOAL := help
 
 .PHONY: help install init-env bootstrap migrate build typecheck test check \
-	dev dev-vite dev-django clean cli-help
+	dev dev-vite dev-django db-create clean cli-help
 
 help: ## Show targets
 	@echo "text-to-google-keep — common tasks"
@@ -23,6 +23,9 @@ init-env: ## Copy .env.example → .env if .env is missing
 	@if [ ! -f .env ]; then cp .env.example .env && echo "Created .env"; else echo ".env already exists"; fi
 
 bootstrap: init-env install build migrate ## First-time setup (needs .env edited for DB)
+
+db-create: ## Postgres role ttgk + DB ttgk_dev (psql -U postgres; use sudo -u postgres if needed)
+	psql -U postgres -v ON_ERROR_STOP=1 -f scripts/postgres-local.sql
 
 migrate: ## Django migrate
 	$(UV) run python manage.py migrate

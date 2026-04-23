@@ -262,7 +262,7 @@ Use a real **`DJANGO_SECRET_KEY`**, **`DJANGO_DEBUG=False`**, and configure **`D
 
 ### PostgreSQL
 
-Create a database and user matching `.env`, then `migrate`. Import history is stored in **`pages_importlog`** (`ImportLog` model) for auditing.
+Defaults in **`.env.example`**: database **`ttgk_dev`**, user **`ttgk`**, password **`ttgk_local`**, test database name **`ttgk_test`** (Django creates and drops it when you run **`manage.py test`**). One-time: **`make db-create`** (runs **`scripts/postgres-local.sql`** as **`postgres`**; use **`sudo -u postgres psql … -f scripts/postgres-local.sql`** if your OS uses peer auth). Then **`migrate`**. With **`DJANGO_USE_SQLITE=true`**, dev uses **`db.sqlite3`** and tests use **`db_test.sqlite3`**. Import history lives in **`pages_importlog`** (`ImportLog` model).
 
 ## Development
 
