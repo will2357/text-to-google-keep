@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>text-to-google-keep</title>
+  <meta name="description" content="Import each line of a text file as a Google Keep note — CLI, Django + Inertia + React.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: oklch(0.145 0 0);
+      --fg: oklch(0.985 0 0);
+      --card: oklch(0.178 0 0);
+      --muted: oklch(0.708 0 0);
+      --primary: oklch(0.7 0.18 250);
+      --border: oklch(0.3 0 0);
+      --radius: 0.75rem;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Inter, system-ui, sans-serif;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    header {
+      border-bottom: 1px solid color-mix(in oklch, var(--border) 50%, transparent);
+      background: color-mix(in oklch, var(--bg) 85%, transparent);
+      backdrop-filter: blur(8px);
+    }
+    .nav-inner {
+      max-width: 56rem;
+      margin: 0 auto;
+      padding: 0 1.25rem;
+      height: 3.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand { font-weight: 700; font-size: 1.125rem; letter-spacing: -0.02em; color: var(--primary); text-decoration: none; }
+    main { max-width: 42rem; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+    h1 { font-size: 1.75rem; font-weight: 650; margin: 0 0 0.75rem; letter-spacing: -0.02em; }
+    .lead { color: var(--muted); font-size: 0.95rem; margin: 0 0 1.75rem; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.35rem 1.5rem;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 1px 2px oklch(0 0 0 / 0.2);
+    }
+    .card h2 { font-size: 1rem; font-weight: 600; margin: 0 0 0.65rem; }
+    .card p, .card li { font-size: 0.875rem; color: var(--muted); margin: 0.35rem 0; }
+    .card ul { padding-left: 1.2rem; margin: 0.5rem 0 0; }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; text-underline-offset: 3px; }
+    code {
+      font-size: 0.82em;
+      background: oklch(0.269 0 0);
+      padding: 0.12em 0.4em;
+      border-radius: 0.25rem;
+      color: var(--fg);
+    }
+    footer {
+      border-top: 1px solid color-mix(in oklch, var(--border) 50%, transparent);
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.8125rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-inner">
+      <a class="brand" href="./">text-to-google-keep</a>
+      <a href="https://github.com/__GITHUB_REPOSITORY__">GitHub</a>
+    </div>
+  </header>
+  <main>
+    <h1>text-to-google-keep</h1>
+    <p class="lead">
+      One Google Keep note per line — <strong>CLI</strong>, or a <strong>Django + Inertia + React</strong> app you run locally.
+      This site on <strong>GitHub Pages</strong> is static documentation only; the importer always runs on your machine (or your own server).
+    </p>
+    <div class="card">
+      <h2>Install (CLI)</h2>
+      <p>From the repo root:</p>
+      <ul>
+        <li><code>uv sync</code></li>
+        <li><code>uv run text-to-google-keep --help</code></li>
+        <li>Use <code>--oauth</code> for Google OAuth + official Keep API (personal Gmail).</li>
+      </ul>
+      <p>See the repository <strong>README</strong> for PostgreSQL, Django, Vite, and OAuth setup.</p>
+    </div>
+    <div class="card">
+      <h2>Repository</h2>
+      <p><a href="https://github.com/__GITHUB_REPOSITORY__">https://github.com/__GITHUB_REPOSITORY__</a></p>
+    </div>
+    <div class="card">
+      <h2>Full web UI</h2>
+      <p>GitHub Pages cannot run Django or PostgreSQL. Run the app locally:</p>
+      <ul>
+        <li><code>npm install && npm run build && uv run python manage.py migrate</code></li>
+        <li><code>npm run dev</code> (terminal 1) + <code>uv run python manage.py runserver</code> (terminal 2)</li>
+      </ul>
+    </div>
+  </main>
+  <footer>
+    Static pages · <a href="https://github.com/__GITHUB_REPOSITORY__">source</a>
+    · Theme aligned with the Django + Vite app (Sython-style tokens)
+  </footer>
+</body>
+</html>

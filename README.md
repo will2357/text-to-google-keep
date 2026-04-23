@@ -5,6 +5,18 @@ Create **one Google Keep note per line** of a UTF-8 text file (**CLI** or **Djan
 - **Google OAuth (recommended for personal Gmail)** — real consent screen, official [Google Keep API](https://developers.google.com/workspace/keep/api/guides), refresh token in your OS keyring. **Labels are not supported** (the REST API does not expose labels on create).
 - **gkeepapi (legacy)** — unofficial client with password / [master token](https://gkeepapi.readthedocs.io/en/latest/index.html#obtaining-a-master-token). Supports **labels** but often hits `BadAuthentication` on consumer accounts.
 
+## GitHub Pages (static site)
+
+GitHub Pages serves **only static files** from `docs/` (landing page + links). It **cannot** run Django, PostgreSQL, or the Keep importer — use the [CLI](#install-uv) or [local Django app](#web-app-django) for that.
+
+**One-time setup**
+
+1. In GitHub: **Settings → Pages → Build and deployment**, set **Source** to **GitHub Actions** (not “Deploy from a branch”).
+2. Push to **`main`** or **`master`**, or run workflow **Deploy GitHub Pages** manually (**Actions** tab).
+3. After a green run, open the environment URL (e.g. `https://<user>.github.io/<repo>/`).
+
+The workflow **`.github/workflows/deploy-github-pages.yml`** substitutes `__GITHUB_REPOSITORY__` in `docs/index.html` with `owner/repo` at deploy time. **`docs/.nojekyll`** disables Jekyll so paths behave predictably.
+
 ## Install (uv)
 
 ```bash

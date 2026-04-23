@@ -1,0 +1,44 @@
+# Publish static content from docs/ to GitHub Pages.
+# Repo settings → Pages → Build and deployment → Source: GitHub Actions.
+
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: ["main", "master"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Inject repository URLs into static HTML
+        run: |
+          set -euo pipefail
+          repo="${{ github.repository }}"
+          for f in docs/index.html; do
+            if [[ -f "$f" ]]; then
+              sed -i "s|__GITHUB_REPOSITORY__|${repo}|g" "$f"
+            fi
+          done
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
