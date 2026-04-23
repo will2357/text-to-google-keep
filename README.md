@@ -1,6 +1,6 @@
 # text-to-google-keep
 
-Create **one Google Keep note per line** of a UTF-8 text file (CLI or local web UI).
+Create **one Google Keep note per line** of a UTF-8 text file (**CLI** or **Django + Inertia + React** web app).
 
 - **Google OAuth (recommended for personal Gmail)** — real consent screen, official [Google Keep API](https://developers.google.com/workspace/keep/api/guides), refresh token in your OS keyring. **Labels are not supported** (the REST API does not expose labels on create).
 - **gkeepapi (legacy)** — unofficial client with password / [master token](https://gkeepapi.readthedocs.io/en/latest/index.html#obtaining-a-master-token). Supports **labels** but often hits `BadAuthentication` on consumer accounts.
@@ -26,9 +26,9 @@ This path uses Google’s documented **OAuth 2.0** flow and **`https://www.googl
 5. **APIs & Services → Credentials → Create credentials → OAuth client ID**  
    - **Desktop app** — download JSON. Use this for **`text-to-google-keep --oauth`** (browser opens on a random localhost port).  
    - **Web application** — add **Authorized redirect URI** exactly  
-     `http://127.0.0.1:8765/oauth/callback`  
-     (match **host and port** if you run the Flask app elsewhere). Download JSON for the **web** UI sign-in button.
-6. Save the downloaded file on your machine, e.g. `~/client_secret.json`, and point the app at it with **`GOOGLE_KEEP_CLIENT_SECRETS`** or **`--client-secrets`**, or put a copy named **`client_secret.json`** in the directory from which you start the CLI or web server.
+     `http://127.0.0.1:8000/oauth/callback/`  
+     (match **host, port, and trailing slash** if you run Django elsewhere). Download JSON for the **Django** web UI “Sign in with Google” button.
+6. Save the downloaded file on your machine, e.g. `~/client_secret.json`, and point the app at it with **`GOOGLE_KEEP_CLIENT_SECRETS`** or **`--client-secrets`**, or put a copy named **`client_secret.json`** in the directory from which you start the CLI or **`manage.py runserver`**.
 
 ### CLI (OAuth)
 
@@ -52,10 +52,10 @@ Clear only OAuth storage:
 text-to-google-keep --oauth --reset-oauth --email you@gmail.com notes.txt
 ```
 
-### Web UI (OAuth)
+### Web UI (OAuth, Django)
 
-1. Set **`GOOGLE_KEEP_CLIENT_SECRETS`** (or place **`client_secret.json`** in the process working directory) so the server can find the **Web** (or Desktop) client JSON whose redirect URI matches this app.
-2. Start **`text-to-google-keep-web`**, open the app URL, click **Sign in with Google** in the header, complete consent.
+1. Set **`GOOGLE_KEEP_CLIENT_SECRETS`** (or place **`client_secret.json`** in the process working directory) so Django can find the **Web** client JSON whose redirect URI matches **`/oauth/callback/`** on your dev server.
+2. Run **`python manage.py runserver`** (see [Web app (Django)](#web-app-django) below), open **http://127.0.0.1:8000/**, click **Sign in with Google** in the header, complete consent.
 3. On the form, check **Use Google OAuth**, enter the **same** email, leave password empty, then import.
 
 ### Keyring entries for OAuth
@@ -185,7 +185,7 @@ If the library reports that Google wants **browser verification**, open the URL 
 text-to-google-keep --reset notes.txt
 ```
 
-Use the **same** `--email` / `GOOGLE_EMAIL` you use for sign-in. That removes only the keyring entry for **`text-to-google-keep`** + that normalized email. On the **web** UI, use **Clear saved token** for the same effect.
+Use the **same** `--email` / `GOOGLE_EMAIL` you use for sign-in. That removes only the keyring entry for **`text-to-google-keep`** + that normalized email. In the **Django** web UI, use **Clear saved token** before sign-in for the same effect.
 
 ## Usage
 
@@ -199,52 +199,62 @@ text-to-google-keep notes.txt --blank-lines
 
 Sign-in options, app passwords, master tokens, and errors are covered in **[Authenticate with Google](#authenticate-with-google)** above.
 
-## Web UI
+## Web app (Django)
 
-Local [Flask](https://flask.palletsprojects.com/) app: paste lines or upload a UTF-8 file. **Authentication is the same as the CLI** (see [Authenticate with Google](#authenticate-with-google)).
+The web UI follows the same stack and styling approach as **Sython** (`~/src/sython`): **Django**, **inertia-django**, **Vite**, **React 19**, **Tailwind v4** (`frontend/src/index.css` `@theme` tokens), and **shadcn-style** UI primitives under `frontend/components/ui/`.
 
-### Run the web server (recommended: `uv run`)
+### Prerequisites
 
-From the **repository root** (the directory that contains `pyproject.toml`):
+- **PostgreSQL** (default `DB_*` in `.env.example`) **or** set **`DJANGO_USE_SQLITE=true`** for a local **`db.sqlite3`** file.
+- **Node 20+** for Vite (`npm install`).
 
-```bash
-cd text-to-google-keep          # or: cd /path/to/your/clone
-uv sync                         # installs deps + this project into .venv
-uv run text-to-google-keep-web   # note: space after "uv run", not a hyphen
-```
-
-Leave that terminal open. In a browser, open:
-
-**http://127.0.0.1:8765**
-
-The server listens on **127.0.0.1** (localhost only) and port **8765** by default. Stop it with **Ctrl+C** in the same terminal.
-
-**Change host or port** (see all options):
+### First-time setup
 
 ```bash
-uv run text-to-google-keep-web --help
-uv run text-to-google-keep-web --host 127.0.0.1 --port 9000
+cd text-to-google-keep
+uv sync
+cp .env.example .env   # edit DJANGO_SECRET_KEY, DB_*, optional DJANGO_USE_SQLITE
+npm install
+npm run build          # writes frontend/dist for django-vite (ignored by git; run after clone)
+uv run python manage.py migrate
 ```
 
-### Run after `uv pip install -e .` (activated venv)
+### Run (two terminals)
 
-If you followed [Install (uv)](#install-uv) and ran `source .venv/bin/activate`, you can start the app **without** `uv run`:
+**Terminal A — Vite dev server (HMR, same as Sython):**
 
 ```bash
-text-to-google-keep-web
-# then open http://127.0.0.1:8765
+npm run dev
 ```
 
-### Optional: `FLASK_SECRET_KEY`
+**Terminal B — Django** (`DJANGO_DEBUG=True` enables `django-vite` dev mode against `http://localhost:5173`):
 
-If you change `--host` / `--port` so other machines can reach the app, set `FLASK_SECRET_KEY` to a long random string for session signing, and treat network exposure like handing someone your Google session.
+```bash
+export DJANGO_SECRET_KEY=dev-only-change-me
+# optional: export DJANGO_USE_SQLITE=true
+uv run python manage.py runserver
+```
+
+Open **http://127.0.0.1:8000/**. OAuth redirect URIs must match this host/port (see [Google OAuth](#google-oauth-personal-gmail--official-api)).
+
+### Production-style assets
+
+```bash
+npm run build
+uv run python manage.py collectstatic --noinput
+```
+
+Use a real **`DJANGO_SECRET_KEY`**, **`DJANGO_DEBUG=False`**, and configure **`DJANGO_ALLOWED_HOSTS`** / HTTPS flags as for any Django deployment.
+
+### PostgreSQL
+
+Create a database and user matching `.env`, then `migrate`. Import history is stored in **`pages_importlog`** (`ImportLog` model) for auditing.
 
 ## Development
 
 ```bash
 uv sync
+npm run typecheck
+uv run python manage.py test
 uv run text-to-google-keep --help
-uv run text-to-google-keep-web --help
 ```
-
-Use **`uv run text-to-google-keep-web`** (see [Web UI](#web-ui) above) to start the server during development.

@@ -10,3 +10,7 @@ coverage.xml
 dist/
 build/
 *.egg-info/
+node_modules/
+frontend/dist/
+db.sqlite3
+staticfiles/
