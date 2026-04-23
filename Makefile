@@ -12,8 +12,8 @@ help: ## Show targets
 	@echo ""
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## ' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "} {printf "  %-14s %s\n", $$1, $$2}'
 	@echo ""
-	@echo "Local web: two terminals — $(MAKE) dev-vite | $(MAKE) dev-django"
-	@echo "Then open http://127.0.0.1:8000/ (see README for .env / OAuth)."
+	@echo "Local web: $(MAKE) dev (Vite + Django) — http://127.0.0.1:8000/"
+	@echo "Or split: $(MAKE) dev-vite | $(MAKE) dev-django · README for .env / OAuth."
 
 install: ## uv sync + npm install
 	$(UV) sync
@@ -39,9 +39,8 @@ test: ## Django tests + npm typecheck
 
 check: test build ## CI-style: tests, typecheck, and frontend build
 
-dev: ## Hint for running Vite + Django
-	@echo "Terminal 1: $(MAKE) dev-vite"
-	@echo "Terminal 2: $(MAKE) dev-django"
+dev: ## Run Vite + Django (Ctrl+C stops both)
+	@./scripts/dev.sh
 
 dev-vite: ## Vite dev server (HMR on :5173)
 	$(NPM) run dev
